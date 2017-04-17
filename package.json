@@ -1,0 +1,28 @@
+{
+  "name": "fs-restore",
+  "version": "0.1.0",
+  "description": "take a snapshot of a file or folder to later restore it",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard --verbose | snazzy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yerkopalma/fs-restore.git"
+  },
+  "keywords": [
+    "fs",
+    "file-system",
+    "restore"
+  ],
+  "author": "Yerko Palma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yerkopalma/fs-restore/issues"
+  },
+  "homepage": "https://github.com/yerkopalma/fs-restore#readme",
+  "devDependencies": {
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.2"
+  }
+}
