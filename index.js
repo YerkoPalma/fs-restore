@@ -9,12 +9,13 @@ function snapshot (origin, opts) {
   // create simple struct to represent the file/folder
   var s = createStruct(origin)
   if (opts && opts.db) {
-    var ops = createBatchOps(s)
-    opts.db.batch(ops, function (err) {
+    var ops = createBatchOps(s, origin)
+    console.log(ops)
+    /* opts.db.batch(ops, function (err) {
       if (err) {
         throw err
       }
-    })
+    }) */
   }
 
   return {
@@ -71,7 +72,9 @@ function snapshot (origin, opts) {
       fs.mkdirSync(dir)
     }
   }
-  function createBatchOps (struct) {
+  function createBatchOps (struct, origin, ops) {
+    ops = ops || []
+    origin = typeof origin === 'string' ? [origin] : origin
     // return an array of objects like
     // { type: 'put', key: '', value: '' }
     // where key will be a path of a file or folder
@@ -96,7 +99,23 @@ function snapshot (origin, opts) {
     // since the struct save in a data property a ReadStream with the content of files, is necesary to convert it
     // to a Buffer to save it to levelDown compliant data store
     // we will use https://github.com/nfroidure/bufferstreams
-    return []
+
+    // if it is a file or a empty dir
+    if (struct.type === 'file' || (struct.type === 'dir' && Object.keys(struct.children).length < 1)) {
+      // console.log(origin)
+      ops.push({ type: 'put', key: origin.join('/'), value: struct.type === 'file' ? struct.data : ''})
+      return ops
+    // there is no type property, so we are in the children object
+    } else if (!struct.type) {
+      for (var child in struct) {
+        origin.push(child)
+        ops.concat(createBatchOps(struct[child], origin, ops))
+        origin.pop()
+      }
+      return ops
+    } else {
+      return createBatchOps(struct.children, origin, ops)
+    }
   }
 }
 module.exports = snapshot
