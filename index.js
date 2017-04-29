@@ -11,18 +11,18 @@ function snapshot (origin, opts) {
   if (opts && opts.db) {
     var ops = createBatchOps(s, origin)
     console.log(ops)
-    /* opts.db.batch(ops, function (err) {
+    opts.db.batch(ops, function (err) {
       if (err) {
         throw err
       }
-    }) */
+    })
   }
 
   return {
     data: s,
     name: origin,
     restore: opts && opts.db
-              ? restoreFromDb
+              ? restoreFromDb(opts.db)
               : normalRestore
   }
 
@@ -65,6 +65,31 @@ function snapshot (origin, opts) {
 
   function restoreFromDb (db) {
     // restore a folder from a levelUp datastore
+    // use createReadStream() to get all the data
+    // regardless of which keys are saved
+    return function () {
+      db.createReadStream()
+        .on('data', function (data) {
+          var isFile = !!data.value
+          var value = data.value
+          var path = ensurePath(data.key)
+          if (isFile) {
+            // pipe the stream to a writeStream to save the file
+            // enjoy
+          }
+          // ensure that a path is created, and return the path when is done
+          function ensurePath () {
+            
+          }
+        })
+        .on('error', function (err) {
+          if (err) throw err
+        })
+        .on('end', function () {
+          // close the db
+          db.close()
+        })
+    }
   }
 
   function safeMkdir (dir) {
@@ -103,7 +128,7 @@ function snapshot (origin, opts) {
     // if it is a file or a empty dir
     if (struct.type === 'file' || (struct.type === 'dir' && Object.keys(struct.children).length < 1)) {
       // console.log(origin)
-      ops.push({ type: 'put', key: origin.join('/'), value: struct.type === 'file' ? struct.data : ''})
+      ops.push({ type: 'put', key: origin.join('/'), value: struct.type === 'file' ? struct.data : '' })
       return ops
     // there is no type property, so we are in the children object
     } else if (!struct.type) {

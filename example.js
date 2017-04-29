@@ -1,3 +1,5 @@
 var restore = require('./')
+var level = require('level')
 
-restore('public', { db: 'asdas' })
+var db = level('~/.db')
+restore('public', { db: db })
