@@ -75,11 +75,20 @@ function snapshot (origin, opts) {
           var path = ensurePath(data.key)
           if (isFile) {
             // pipe the stream to a writeStream to save the file
+            value.pipe(fs.createWriteStream(path))
             // enjoy
+          } else {
+            fs.mkdir(data.key)
           }
           // ensure that a path is created, and return the path when is done
-          function ensurePath () {
-            
+          function ensurePath (path) {
+            var originalPath = path
+            if (!Array.isArray(path)) path = path.split('/')
+            path.pop()
+            path.forEach(function (dir) {
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+            })
+            return originalPath
           }
         })
         .on('error', function (err) {

@@ -1,5 +1,6 @@
-var restore = require('./')
+var snapshot = require('./')
 var level = require('level')
 
 var db = level('~/.db')
-restore('public', { db: db })
+var s = snapshot('public', { db: db })
+s.restore()

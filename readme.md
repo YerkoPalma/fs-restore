@@ -92,7 +92,7 @@ var s = snapshot('/src', { db: require('memdb')() })
 // in other program or node instance
 var snapshot = require('fs-restore')
 
-var s = snapshot('/src', { db: require('memdb')() }).restore()
+var s = snapshot('/src', { db: require('memdb')() })
 ```
 
 - Handle sync and async versions.
